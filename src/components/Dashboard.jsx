@@ -1,9 +1,9 @@
 import React from "react";
-import { TrendingUp, TrendingDown, Wallet, CalendarRange, Calendar } from "lucide-react";
+import { TrendingUp, TrendingDown, Wallet, Calendar } from "lucide-react";
 import { formatCurrency } from "../utils/helpers";
 
-const Dashboard = () => {
-  const { totalIncome = 0, totalExpense = 0, balance = 0 } = {};
+const Dashboard = (summary, period) => {
+  const { totalIncome = 0, totalExpense = 0, balance = 0 } = summary || {};
   const cards = [
     {
       title: "Total Income",
@@ -42,7 +42,7 @@ const Dashboard = () => {
 
             <div className="flex items-center text-sm text-gray-500">
               <Calendar size={16} className="mr-1" />
-              <span className="capitalize">{ "All time"}</span>
+              <span className="capitalize">{period || "All time"}</span>
             </div>
           </div>
 
