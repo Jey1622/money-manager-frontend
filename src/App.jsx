@@ -12,6 +12,7 @@ import {
   getAccounts,
   getCategories,
 } from "./services/api";
+import Filters from "./components/Filters";
 
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -21,19 +22,18 @@ function App() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
-    period: 'month',
-    type: '',
-    category: '',
-    division: '',
-    startDate: '',
-    endDate: ''
+    period: "month",
+    type: "",
+    category: "",
+    division: "",
+    startDate: "",
+    endDate: "",
   });
-
-  useEffect(()=>{
+  useEffect(() => {
     fetchData();
-  },[filters])
+  }, [filters]);
   const fetchData = async () => {
-    try{
+    try {
       setLoading(true);
 
       const filterParams = {};
@@ -46,26 +46,25 @@ function App() {
         filterParams.endDate = filters.endDate;
       }
 
-      const[transactionsRes,summaryRes,accountRes,categoriesRes]=await Promise.all([
-        getTransactions(filterParams),
-        getSummary(filterParams),
-        getAccounts(),
-        getCategories()
-      ]);
+      const [transactionsRes, summaryRes, accountRes, categoriesRes] =
+        await Promise.all([
+          getTransactions(filterParams),
+          getSummary(filterParams),
+          getAccounts(),
+          getCategories(),
+        ]);
 
       setTransactions(transactionsRes.data);
       setSummary(summaryRes.data);
       setAccounts(accountRes.data);
-      setCategories(categoriesRes.data);
-
+      setCategories(categoriesRes.data.data);
     } catch (error) {
-      console.error('Error fetching data:', error);
-      alert('Failed to fetch data. Please try again.');
+      console.error("Error fetching data:", error);
+      alert("Failed to fetch data. Please try again.");
     } finally {
       setLoading(false);
     }
-  }
-
+  };
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -94,6 +93,12 @@ function App() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Dashboard summary={summary} period={filters.period} />
+
+        <Filters
+          filters={filters}
+          onFilterChange={setFilters}
+          categories={categories}
+        />
 
         {summary.categoryBreakdown && summary.categoryBreakdown.length > 0 && (
           <div className="mb-6">
