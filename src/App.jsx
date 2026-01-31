@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import { Plus } from "lucide-react";
+import { Loader, Plus } from "lucide-react";
 import Dashboard from "./components/Dashboard";
 import Summary from "./components/Summary";
 import {
@@ -13,11 +13,14 @@ import {
   getCategories,
 } from "./services/api";
 import Filters from "./components/Filters";
+import TransactionList from "./components/Transactionlist";
+import TransactionModel from "./components/Transactionmodel";
 
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [transactions, setTransactions] = useState([]);
   const [summary, setSummary] = useState({});
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [accounts, setAccounts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,9 +32,11 @@ function App() {
     startDate: "",
     endDate: "",
   });
+
   useEffect(() => {
     fetchData();
   }, [filters]);
+
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -65,6 +70,57 @@ function App() {
       setLoading(false);
     }
   };
+
+  const handleEditTransaction = async (transaction) => {
+    setSelectedTransaction(transaction);
+    setIsModalOpen(true);
+  }
+
+  const handleDeleteTransaction = async (id) => {
+    if(window.confirm("Are you sure you want to delete this transaction?")) {
+      try {
+        await deleteTransaction(id);
+        fetchData();
+      } catch (error) {
+        console.error("Error deleting transaction:", error);
+        alert("Failed to delete transaction. Please try again.");
+      }
+    }
+  }
+
+  const handleAddTransaction = async (data) => {
+    try{
+      if(selectedTransaction) {
+        await updateTransaction(selectedTransaction._id, data);
+      } else {
+        await createTransaction(data);
+      }
+      setIsModalOpen(false);
+      setSelectedTransaction(null);
+      fetchData();
+    }catch(error){
+      console.error("Error saving transaction:", error);
+      if (error.response && error.response.status === 403) {
+        alert('Edit not allowed. Transactions can only be edited within 12 hours of creation.');
+      } else {
+        alert('Failed to save transaction. Please try again.');
+      }
+    }   
+  }
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedTransaction(null);
+  };
+
+  if (loading && transactions.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader className="animate-spin text-primary-600" size={48} />
+      </div>
+    );
+  }
+console.log(summary.data)
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -102,10 +158,33 @@ function App() {
 
         {summary.categoryBreakdown && summary.categoryBreakdown.length > 0 && (
           <div className="mb-6">
-            <Summary summary={summary} />
+            <Summary summary={summary.data} />
           </div>
         )}
+
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Transaction History</h2>
+          {loading ? (
+            <div className="bg-white rounded-lg shadow-md p-8 text-center">
+              <Loader className="animate-spin text-primary-600 mx-auto" size={32} />
+            </div>
+          ) : (
+            <TransactionList
+              transactions={transactions.data}
+              onEdit={handleEditTransaction}
+              onDelete={handleDeleteTransaction}
+            />
+          )}
+        </div>
       </main>
+
+      <TransactionModel
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSubmit={handleAddTransaction}
+        transaction={selectedTransaction}
+        accounts={accounts}
+      />
     </div>
   );
 }
