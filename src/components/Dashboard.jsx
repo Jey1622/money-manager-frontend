@@ -3,7 +3,7 @@ import { TrendingUp, TrendingDown, Wallet, Calendar } from "lucide-react";
 import { formatCurrency } from "../utils/helpers";
 
 const Dashboard = (summary, period) => {
-  const { totalIncome = 0, totalExpense = 0, balance = 0 } = summary || {};
+  const { totalIncome , totalExpense , balance  } = summary.summary || {};
   const cards = [
     {
       title: "Total Income",
