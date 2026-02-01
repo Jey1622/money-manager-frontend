@@ -13,7 +13,7 @@ import {
 } from "../services/api";
 import Filters from "../components/Filters";
 import TransactionList from "../components/TransactionList";
-import TransactionModel from "../components/TransactionModel";
+import TransactionModel from "../components/Transactionmodel.jsx";
 
 const TransactionPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
