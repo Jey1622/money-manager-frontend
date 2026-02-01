@@ -12,8 +12,8 @@ import {
   getCategories,
 } from "../services/api";
 import Filters from "../components/Filters";
-import TransactionList from "../components/Transactionlist";
-import TransactionModel from "../components/Transactionmodel";
+import TransactionList from "../components/TransactionList";
+import TransactionModel from "../components/TransactionModel";
 
 const TransactionPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
